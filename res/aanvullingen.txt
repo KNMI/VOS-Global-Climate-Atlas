@@ -1,0 +1,38 @@
+01-11-2006 - Beaufort helpfile toegevoegd
+           - desktop fotos teruggebracht tot 2 stuks (zelfde methode als OWA)
+
+========================================================================================================================
+veranderingen versie 1.1 t.o.v. versie 1.0
+========================================================================================================================
+21-02-2007 - voor kunnen tonen chm files:
+
+                1] #include "htmlhelp.h"
+
+                2] in constructor [main.cpp]
+                   /* laden HTMLHelp OCX voor HTML (chm) help */
+                   hHelpOCX = ::LoadLibrary("hhctrl.ocx");
+                   if (!hHelpOCX)
+                     ::MessageBox(0, "Cannot use the html help", "TurboWin Error", MB_OK | MB_ICONERROR);
+
+                3] in main.h (private section)
+                   // voor HTMLHelp (chm)
+                   typedef HWND WINAPI (*HtmlHelpFunc)( HWND hwndCaller, LPCSTR pszFile, UINT uCommand, DWORD dwData );
+                   HtmlHelpFunc HTMLHelp;
+                   HINSTANCE hHelpOCX;
+
+                4] voorbeeld chm help file aanroep
+                   void __fastcall TForm1::InfoDataSourcesClick(TObject *Sender)
+                   {
+                      AnsiString volledig_help_path = "";
+                      volledig_help_path = global_climate_atlas_root_path + help_sub_dir + "DATA.CHM";
+                      HTMLHelp = (HtmlHelpFunc)::GetProcAddress(hHelpOCX, ATOM_HTMLHELP_API_ANSI);
+                      HTMLHelp(0, volledig_help_path.c_str(), HH_DISPLAY_TOPIC, 0);
+                    }
+
+                5] // tegenhanger van punt 2) [voor de zekerheid als chm niet alleen vanuit mainform wordt opgeroepen]
+                   void __fastcall TForm1::FormDestroy(TObject *Sender)
+                   {
+                      // voor chm HTMLHelp
+                      ::FreeLibrary("hhctrl.ocx");
+                   }
+
